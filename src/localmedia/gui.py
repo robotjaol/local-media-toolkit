@@ -36,12 +36,18 @@ class App(tk.Tk):
         )
 
         ttk.Label(frame, text="Input").grid(row=2, column=0, sticky="w")
-        ttk.Entry(frame, textvariable=self.input_var).grid(row=3, column=0, columnspan=2, sticky="ew", padx=(0, 8))
+        ttk.Entry(frame, textvariable=self.input_var).grid(
+            row=3, column=0, columnspan=2, sticky="ew", padx=(0, 8)
+        )
         ttk.Button(frame, text="Browse", command=self.pick_input).grid(row=3, column=2, sticky="ew")
 
         ttk.Label(frame, text="Output").grid(row=4, column=0, sticky="w", pady=(14, 0))
-        ttk.Entry(frame, textvariable=self.output_var).grid(row=5, column=0, columnspan=2, sticky="ew", padx=(0, 8))
-        ttk.Button(frame, text="Save as", command=self.pick_output).grid(row=5, column=2, sticky="ew")
+        ttk.Entry(frame, textvariable=self.output_var).grid(
+            row=5, column=0, columnspan=2, sticky="ew", padx=(0, 8)
+        )
+        ttk.Button(frame, text="Save as", command=self.pick_output).grid(
+            row=5, column=2, sticky="ew"
+        )
 
         ttk.Label(frame, text="Action").grid(row=6, column=0, sticky="w", pady=(14, 0))
         actions = ttk.Combobox(
@@ -64,7 +70,9 @@ class App(tk.Tk):
         ttk.Entry(frame, textvariable=self.crf_var, width=8).grid(row=7, column=2, sticky="ew")
 
         ttk.Separator(frame).grid(row=8, column=0, columnspan=3, sticky="ew", pady=20)
-        ttk.Button(frame, text="Run locally", command=self.run_job).grid(row=9, column=0, sticky="w")
+        ttk.Button(frame, text="Run locally", command=self.run_job).grid(
+            row=9, column=0, sticky="w"
+        )
         ttk.Label(frame, textvariable=self.status_var, wraplength=650).grid(
             row=10, column=0, columnspan=3, sticky="w", pady=(16, 0)
         )
@@ -105,18 +113,55 @@ class App(tk.Tk):
 
         action = self.action_var.get()
         if action == "compress":
-            cmd = [sys.executable, "-m", "localmedia.cli", "compress", src, "-o", out, "--crf", self.crf_var.get(), "--overwrite"]
+            cmd = [
+                sys.executable,
+                "-m",
+                "localmedia.cli",
+                "compress",
+                src,
+                "-o",
+                out,
+                "--crf",
+                self.crf_var.get(),
+                "--overwrite",
+            ]
         elif action == "convert":
-            cmd = [sys.executable, "-m", "localmedia.cli", "convert", src, "--to", self.format_var.get(), "-o", out, "--overwrite"]
+            cmd = [
+                sys.executable,
+                "-m",
+                "localmedia.cli",
+                "convert",
+                src,
+                "--to",
+                self.format_var.get(),
+                "-o",
+                out,
+                "--overwrite",
+            ]
         else:
-            cmd = [sys.executable, "-m", "localmedia.cli", "strip-metadata", src, "-o", out, "--overwrite"]
+            cmd = [
+                sys.executable,
+                "-m",
+                "localmedia.cli",
+                "strip-metadata",
+                src,
+                "-o",
+                out,
+                "--overwrite",
+            ]
 
         self.status_var.set("Running locally...")
         self.append_log("$ " + " ".join(cmd))
         threading.Thread(target=self._worker, args=(cmd,), daemon=True).start()
 
     def _worker(self, cmd: list[str]) -> None:
-        proc = subprocess.run(cmd, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, check=False)
+        proc = subprocess.run(
+            cmd,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            check=False,
+        )
         self.after(0, self.append_log, proc.stdout.strip())
         if proc.returncode == 0:
             self.after(0, self.status_var.set, "Completed. Output written locally.")

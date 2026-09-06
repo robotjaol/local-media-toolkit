@@ -22,8 +22,32 @@ def main() -> int:
             "-f", "lavfi", "-i", "sine=frequency=1000:sample_rate=44100", "-t", "2",
             "-c:v", "libx264", "-c:a", "aac", str(src),
         ])
-        run([sys.executable, "-m", "localmedia.cli", "compress", str(src), "-o", str(out), "--overwrite"])
-        run([sys.executable, "-m", "localmedia.cli", "audio", str(src), "--to", "mp3", "-o", str(audio), "--overwrite"])
+        run(
+            [
+                sys.executable,
+                "-m",
+                "localmedia.cli",
+                "compress",
+                str(src),
+                "-o",
+                str(out),
+                "--overwrite",
+            ]
+        )
+        run(
+            [
+                sys.executable,
+                "-m",
+                "localmedia.cli",
+                "audio",
+                str(src),
+                "--to",
+                "mp3",
+                "-o",
+                str(audio),
+                "--overwrite",
+            ]
+        )
         assert out.exists() and out.stat().st_size > 0
         assert audio.exists() and audio.stat().st_size > 0
         print("Smoke test passed")
