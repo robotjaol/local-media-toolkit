@@ -85,7 +85,12 @@ def make_parser() -> argparse.ArgumentParser:
 
     aud = sp.add_parser("audio", help="Extract audio")
     aud.add_argument("input")
-    aud.add_argument("--to", required=True, choices=["mp3", "aac", "opus", "wav", "flac"], dest="fmt")
+    aud.add_argument(
+        "--to",
+        required=True,
+        choices=["mp3", "aac", "opus", "wav", "flac"],
+        dest="fmt",
+    )
     aud.add_argument("--bitrate", default="192k")
     add_common_output(aud)
 
@@ -125,7 +130,8 @@ def main(argv: list[str] | None = None) -> int:
                 print(f"File      : {src}")
                 print(f"Size      : {human_bytes(int(fmt.get('size', 0) or 0))}")
                 print(f"Duration  : {float(fmt.get('duration', 0) or 0):.3f} s")
-                print(f"Format    : {fmt.get('format_long_name', fmt.get('format_name', 'unknown'))}")
+                format_name = fmt.get("format_long_name", fmt.get("format_name", "unknown"))
+                print(f"Format    : {format_name}")
                 for i, stream in enumerate(data.get("streams", [])):
                     codec_type = stream.get("codec_type", "unknown")
                     codec = stream.get("codec_name", "unknown")
@@ -178,7 +184,14 @@ def main(argv: list[str] | None = None) -> int:
             print(f"Planned video bitrate: {vbps/1000:.0f} kb/s; audio: {abps/1000:.0f} kb/s")
         elif args.command == "resize":
             out = resolve_out(src, args.output, "_resized", "mp4")
-            resize(src, out, width=args.width, height=args.height, crf=args.crf, overwrite=args.overwrite)
+            resize(
+                src,
+                out,
+                width=args.width,
+                height=args.height,
+                crf=args.crf,
+                overwrite=args.overwrite,
+            )
         elif args.command == "trim":
             out = resolve_out(src, args.output, "_trimmed", src.suffix.lstrip("."))
             trim(

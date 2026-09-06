@@ -5,9 +5,9 @@ import os
 import shutil
 import subprocess
 import tempfile
+from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Sequence
 
 from .utils import parse_bitrate
 
@@ -148,7 +148,8 @@ def target_size(
     video_bps = total_bps - audio_bps
     if video_bps < 100_000:
         raise LocalMediaError(
-            "Target is too small for this duration/audio bitrate. Increase --mb or lower --audio-bitrate."
+            "Target is too small for this duration/audio bitrate. "
+            "Increase --mb or lower --audio-bitrate."
         )
 
     tools = find_toolchain()
