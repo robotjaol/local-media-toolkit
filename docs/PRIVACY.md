@@ -16,7 +16,8 @@ Local processing does not eliminate every data exposure path. Consider:
 - Operating system telemetry and crash reporting
 - Endpoint security products
 - Backup agents
-- Third-party FFmpeg binaries
+- Third-party FFmpeg and ImageMagick binaries/delegates
+- Temporary image copies on the local system temporary drive during conversion
 - Shell history containing sensitive paths
 - Media content that visibly reveals identifying information
 - Embedded metadata not covered by a simple global metadata strip

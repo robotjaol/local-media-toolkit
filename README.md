@@ -1,6 +1,6 @@
 # Local Media Toolkit
 
-> Privacy-first, cross-platform FFmpeg tooling for converting, compressing, resizing, trimming, inspecting, and batch-processing media entirely on your own machine.
+> Convert videos and images in one desktop GUI, entirely on your own machine. FFmpeg powers video; ImageMagick powers images. No manual commands needed for conversion.
 
 **No uploads. No cloud converter. No tracking. Your media stays local.**
 
@@ -13,7 +13,35 @@
 
 Online media converters are convenient, but they require uploading files to a third-party server. For private footage, work documents, customer recordings, unreleased content, research data, or simply large files, that creates avoidable privacy, bandwidth, and retention risks.
 
-Local Media Toolkit is a thin, auditable command-line and desktop wrapper around FFmpeg. It keeps the heavy lifting on your computer while making common workflows easier to discover and repeat.
+Local Media Toolkit is a small Python/Tkinter desktop application with **Video** and **Image** tabs, plus the existing FFmpeg command-line toolkit. Choose files, set output, convert, and open the results from one window.
+
+## Desktop requirements and launch
+
+- Windows 10/11, macOS, or Linux; Python 3.10+ with Tkinter.
+- FFmpeg and FFprobe on PATH for Video (installation below).
+- ImageMagick on PATH for Image: version 7 on Windows; version 6 or 7 on macOS/Linux.
+- Enough space for outputs and temporary image copies. No Python runtime dependencies beyond the standard library.
+
+```bash
+python -m pip install .
+localmedia-gui
+```
+
+Alternatively launch with `python -m localmedia.gui`. Check Tk with `python -m tkinter`.
+On Ubuntu/Debian install `python3-tk`; use a Tk-enabled Python on Windows/macOS.
+Each media backend is independent: missing ImageMagick does not prevent video conversion.
+
+In either tab, **Add files → Save folder / output settings → Convert queue → Open result**.
+Files have individual statuses and readable error details. Failed files can be retried;
+successful ones are skipped. The GUI uses a moving activity indicator and actual file
+counts, rather than estimated percentages. Processing runs in background workers.
+New results get unique names; the GUI never overwrites originals or existing results.
+
+The Image tab offers formats reported by your installed ImageMagick, optional quality
+for applicable encoders, and aspect-preserving size limits. It currently handles still
+images; animated/multi-page inputs produce a clear error.
+
+**[Image converter tutorial: installation, GUI steps, equivalent commands, and troubleshooting](docs/IMAGE_CONVERTER.md)**
 
 ## Features
 
@@ -29,7 +57,8 @@ Local Media Toolkit is a thin, auditable command-line and desktop wrapper around
 | Extract audio | `localmedia audio input.mp4 --to mp3` | Video to audio |
 | Remove metadata | `localmedia strip-metadata input.mp4` | Produce a privacy-clean copy |
 | Batch convert | `localmedia batch ./videos --to mp4` | Convert an entire directory |
-| Desktop GUI | `localmedia-gui` | Point-and-click local conversion/compression |
+| Desktop GUI | `localmedia-gui` | Video and Image tabs, batch queues, results and retry |
+| Image conversion | GUI → Image | Installed ImageMagick formats, quality and resizing |
 
 ## Architecture
 
@@ -42,6 +71,7 @@ User
                                              |
                                              +--> ffprobe: inspect input
                                              +--> ffmpeg: transform media
+                                             +--> ImageMagick: inspect/convert images
                                              |
                                              +--> output file on local disk
 
@@ -226,7 +256,9 @@ localmedia batch ./incoming --to mp4 --recursive
 localmedia-gui
 ```
 
-The GUI uses Python's standard Tk interface and executes the same local FFmpeg workflow. No web server is started.
+The GUI uses Python's standard Tk interface. Video retains convert, compress (H.264 MP4),
+and strip-metadata actions. Image uses the installed ImageMagick backend. All existing
+advanced video/audio CLI workflows remain available. No web server is started.
 
 ## Command reference
 
@@ -285,7 +317,7 @@ The application itself:
 2. Does not run a cloud backend.
 3. Does not require an account or API key.
 4. Does not include analytics or telemetry.
-5. Invokes the local `ffmpeg` and `ffprobe` executables available in `PATH`.
+5. Invokes local `ffmpeg`, `ffprobe`, and ImageMagick executables available in `PATH`.
 
 This does not make the operating system, third-party FFmpeg build, storage device, or other software on your machine inherently private. Review your own environment for sensitive workflows.
 
@@ -341,6 +373,12 @@ Integration smoke test, requires FFmpeg:
 
 ```bash
 python scripts/smoke_test.py
+```
+
+Image integration tests (skipped when ImageMagick is unavailable):
+
+```bash
+pytest -q tests/test_image_integration.py
 ```
 
 ## Roadmap
